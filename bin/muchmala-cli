@@ -1,0 +1,126 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var cmn = require('muchmala-cmn')
+  , program = require('commander')
+  , package = require('../package.json')
+  , redis = require('redis')
+  , async = require('async')
+  , path = require('path')
+  , _ = require('lodash');
+
+// Current working directory
+var cwd = process.cwd();
+
+/**
+ * CLI
+ */
+program
+  .version(package.version)
+  .option('-p, --piece [piece]', 'piece size, default: 120')
+  .option('-s, --sprite [sprite]', 'sprite size, default: 5')
+  .option('-o, --out [out]', 'output dir, default: CWD')
+  .option('-a, --start [start]', 'start index of the puzzles list')
+  .option('-z, --stop [stop]', 'stop index of the puzzles list');
+
+program
+  .command('create <image> [options]')
+  .description('create new puzzle')
+  .action(create);
+
+program
+  .command('covers [options]')
+  .description('create covers')
+  .action(covers);
+
+program
+  .command('frames [options]')
+  .description('create frames')
+  .action(frames);
+
+program
+  .command('list [options]')
+  .description('get puzzles list')
+  .action(list);
+
+program
+  .command('count')
+  .description('get puzzles count')
+  .action(count);
+
+var redisClient = redis.createClient();
+
+function create(imagePath) {
+  var builder = new cmn.Builder(redisClient);
+
+  builder.buildPuzzle({
+    dirPath    : path.resolve(cwd, program.out || '')  
+  , imagePath  : path.resolve(cwd, imagePath)
+  , pieceSize  : +program.piece  || 120
+  , spriteSize : +program.sprite || 5
+  }, function(err) {
+    if (err) throw err;
+    process.exit(1);
+  });
+}
+
+function covers() {
+  var builder = new cmn.Builder(redisClient);
+
+  builder.buildCovers({
+    dirPath    : path.resolve(cwd, program.out || '')  
+  , pieceSize  : +program.piece || 120
+  }, function(err) {
+    if (err) throw err;
+    process.exit(1);
+  });
+}
+
+function frames() {
+  var builder = new cmn.Builder(redisClient);
+
+  builder.buildFrames({
+    dirPath    : path.resolve(cwd, program.out || '')  
+  , pieceSize  : +program.piece || 120
+  }, function(err) {
+    if (err) throw err;
+    process.exit(1);
+  });
+}
+
+function list() {
+  var puzzle = new cmn.db.Puzzle(redisClient);
+  
+  var op = {};
+  program.start && (op.start = +program.start);
+  program.stop && (op.stop = +program.stop);
+
+  puzzle.list(op, function(err, list) {
+    if (err) throw err;
+    
+    _.each(list, function(puzzle) {
+      var date = new Date(+puzzle.time);
+
+      console.log('%s\t%dx%d\t%d\t%d\t%s\t%d', puzzle.id, puzzle.lenHor,
+        puzzle.lenVer, puzzle.pieceSize, puzzle.spriteSize,
+        date.toLocaleDateString(), puzzle.public);
+    });
+
+    process.exit(1);
+  });
+}
+
+function count() {
+  var puzzle = new cmn.db.Puzzle(redisClient);
+
+  puzzle.count(function(err, count) {
+    if (err) throw err;
+    console.log(count);
+    process.exit(1);
+  });
+}
+
+program.parse(process.argv);

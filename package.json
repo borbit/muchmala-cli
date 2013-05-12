@@ -1,0 +1,14 @@
+{ 
+  "name" : "muchmala-cli",
+  "version" : "0.0.1",
+  "description" : "Command line tool for Muchmala",
+  "contributors" : [
+    "Serge Borbit <serge.borbit@gmail.com>"
+  ],
+  "dependencies": {
+    "redis" : "*",
+    "commander": "*",
+    "lodash" : "*",
+    "async" : "*"
+  }
+}
