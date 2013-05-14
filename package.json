@@ -6,7 +6,6 @@
     "Serge Borbit <serge.borbit@gmail.com>"
   ],
   "dependencies": {
-    "redis" : "*",
     "commander": "*",
     "lodash" : "*",
     "async" : "*"

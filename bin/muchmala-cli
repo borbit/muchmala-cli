@@ -7,7 +7,6 @@
 var cmn = require('muchmala-cmn')
   , program = require('commander')
   , package = require('../package.json')
-  , redis = require('redis')
   , async = require('async')
   , path = require('path')
   , _ = require('lodash');
@@ -51,7 +50,7 @@ program
   .description('get puzzles count')
   .action(count);
 
-var redisClient = redis.createClient();
+var redisClient = cmn.helpers.redisClient(process.env.REDIS_URL || 'redis://127.0.0.1:6379/0');
 
 function create(imagePath) {
   var builder = new cmn.Builder(redisClient);
