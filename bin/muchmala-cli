@@ -9,7 +9,8 @@ var cmn = require('muchmala-cmn')
   , package = require('../package.json')
   , async = require('async')
   , path = require('path')
-  , _ = require('lodash');
+  , _ = require('lodash')
+  , fs = require('fs');
 
 // Current working directory
 var cwd = process.cwd();
@@ -21,12 +22,12 @@ program
   .version(package.version)
   .option('-p, --piece [piece]', 'piece size, default: 120')
   .option('-s, --sprite [sprite]', 'sprite size, default: 5')
-  .option('-o, --out [out]', 'output dir, default: CWD')
   .option('-a, --start [start]', 'start index of the puzzles list')
-  .option('-z, --stop [stop]', 'stop index of the puzzles list');
+  .option('-z, --stop [stop]', 'stop index of the puzzles list')
+  .option('-o, --out [out]', 'output dir, default: CWD');
 
 program
-  .command('create <image> [options]')
+  .command('create <image|dir> [options]')
   .description('create new puzzle')
   .action(create);
 
@@ -53,13 +54,33 @@ program
 var redisClient = cmn.helpers.redisClient(process.env.REDIS_URL || 'redis://127.0.0.1:6379/0');
 
 function create(imagePath) {
+  imagePath = path.resolve(cwd, imagePath);
+
   var builder = new cmn.Builder(redisClient);
+  var stat = fs.statSync(imagePath);
+  var images;
+
+  if (stat.isDirectory()) {
+    images = fs.readdirSync(imagePath);
+  } else {
+    images = [imagePath];
+  }
+
+  images = _.filter(images, function(img) {
+    return ~['.jpg', '.png'].indexOf(path.extname(img));
+  });
+  images = _.map(images, function(img) {
+    return path.resolve(imagePath, img);
+  });
+
+  if (!images.length)
+    process.exit();
 
   builder.buildPuzzle({
     dirPath    : path.resolve(cwd, program.out || '')  
-  , imagePath  : path.resolve(cwd, imagePath)
   , pieceSize  : +program.piece  || 120
   , spriteSize : +program.sprite || 5
+  , images     : images
   }, function(err) {
     if (err) throw err;
     process.exit(1);
