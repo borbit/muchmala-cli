@@ -1,7 +1,7 @@
 { 
   "name" : "muchmala-cli",
   "version" : "0.0.1",
-  "description" : "Command line tool for Muchmala",
+  "description" : "Muchmala CLI",
   "contributors" : [
     "Serge Borbit <serge.borbit@gmail.com>"
   ],

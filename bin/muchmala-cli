@@ -112,19 +112,19 @@ function frames() {
 }
 
 function list() {
-  var puzzle = new cmn.db.Puzzle(redisClient);
+  var puzzles = new cmn.db.Puzzles(redisClient);
   
   var op = {};
   program.start && (op.start = +program.start);
   program.stop && (op.stop = +program.stop);
 
-  puzzle.list(op, function(err, list) {
+  puzzles.getPuzzles(op, function(err, list) {
     if (err) throw err;
     
-    _.each(list, function(puzzle) {
+    _.each(list, function(puzzle, i) {
       var date = new Date(+puzzle.time);
 
-      console.log('%s\t%dx%d\t%d\t%d\t%s\t%d', puzzle.id, puzzle.lenHor,
+      console.log('%d\t%s\t%dx%d\t%d\t%d\t%s\t%d', i, puzzle.id, puzzle.lenHor,
         puzzle.lenVer, puzzle.pieceSize, puzzle.spriteSize,
         date.toLocaleDateString(), puzzle.public);
     });
@@ -134,9 +134,9 @@ function list() {
 }
 
 function count() {
-  var puzzle = new cmn.db.Puzzle(redisClient);
+  var puzzles = new cmn.db.Puzzles(redisClient);
 
-  puzzle.count(function(err, count) {
+  puzzles.getPuzzlesCount(function(err, count) {
     if (err) throw err;
     console.log(count);
     process.exit(1);
