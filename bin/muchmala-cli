@@ -124,9 +124,9 @@ function list() {
     _.each(list, function(puzzle, i) {
       var date = new Date(+puzzle.time);
 
-      console.log('%d\t%s\t%dx%d\t%d\t%d\t%s\t%d', i, puzzle.id, puzzle.lenHor,
+      console.log('%d\t%s\t%dx%d\t%d\t%d\t%s\t%d\t%d', i, puzzle.id, puzzle.lenHor,
         puzzle.lenVer, puzzle.pieceSize, puzzle.spriteSize,
-        date.toLocaleDateString(), puzzle.public);
+        date.toLocaleDateString(), puzzle.public, puzzle.complete);
     });
 
     process.exit(1);
