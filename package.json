@@ -1,13 +1,14 @@
-{ 
-  "name" : "muchmala-cli",
-  "version" : "0.0.1",
-  "description" : "Muchmala CLI",
-  "contributors" : [
+{
+  "name": "muchmala-cli",
+  "version": "0.0.1",
+  "description": "Muchmala CLI",
+  "contributors": [
     "Serge Borbit <serge.borbit@gmail.com>"
   ],
   "dependencies": {
     "commander": "*",
-    "lodash" : "*",
-    "async" : "*"
+    "progress": "*",
+    "lodash": "*",
+    "async": "*"
   }
 }

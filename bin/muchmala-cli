@@ -7,6 +7,7 @@
 var cmn = require('muchmala-cmn')
   , program = require('commander')
   , package = require('../package.json')
+  , Progress = require('progress')
   , async = require('async')
   , path = require('path')
   , _ = require('lodash')
@@ -76,13 +77,22 @@ function create(imagePath) {
   if (!images.length)
     process.exit();
 
+  var bar = new Progress('Creating: [:bar] :current/:total', {
+    total: images.length
+  , width: 40
+  });
+
+  bar.tick(0);
   builder.buildPuzzle({
     dirPath    : path.resolve(cwd, program.out || '')  
   , pieceSize  : +program.piece  || 120
   , spriteSize : +program.sprite || 5
   , images     : images
+  }, function() {
+    bar.tick();
   }, function(err) {
     if (err) throw err;
+    console.log('');
     process.exit(1);
   });
 }
