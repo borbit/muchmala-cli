@@ -13,6 +13,10 @@ var cmn = require('muchmala-cmn')
   , _ = require('lodash')
   , fs = require('fs');
 
+var redis = require('redis');
+var parse = require('parse-redis-url');
+redis = parse(redis);
+
 // Current working directory
 var cwd = process.cwd();
 
@@ -25,7 +29,8 @@ program
   .option('-s, --sprite [sprite]', 'sprite size, default: 5')
   .option('-a, --start [start]', 'start index of the puzzles list')
   .option('-z, --stop [stop]', 'stop index of the puzzles list')
-  .option('-o, --out [out]', 'output dir, default: CWD');
+  .option('-o, --out [out]', 'output dir, default: CWD')
+  .option('-r, --redis [redis]', 'redis url');
 
 program
   .command('create <image|dir> [options]')
@@ -38,9 +43,9 @@ program
   .action(covers);
 
 program
-  .command('frames [options]')
-  .description('create frames')
-  .action(frames);
+  .command('frame [options]')
+  .description('create frame')
+  .action(frame);
 
 program
   .command('list [options]')
@@ -52,7 +57,7 @@ program
   .description('get puzzles count')
   .action(count);
 
-var redisClient = cmn.helpers.redisClient(process.env.REDIS_URL || 'redis://127.0.0.1:6379/0');
+var redisClient = redis.createClient(program.redis || 'redis://localhost:6379');
 
 function create(imagePath) {
   imagePath = path.resolve(cwd, imagePath);
@@ -109,10 +114,10 @@ function covers() {
   });
 }
 
-function frames() {
+function frame() {
   var builder = new cmn.Builder(redisClient);
 
-  builder.buildFrames({
+  builder.buildFrame({
     dirPath    : path.resolve(cwd, program.out || '')  
   , pieceSize  : +program.piece || 120
   }, function(err) {
