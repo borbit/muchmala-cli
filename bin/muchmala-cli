@@ -8,14 +8,11 @@ var cmn = require('muchmala-cmn')
   , program = require('commander')
   , package = require('../package.json')
   , Progress = require('progress')
+  , redis = require('redis-url')
   , async = require('async')
   , path = require('path')
   , _ = require('lodash')
   , fs = require('fs');
-
-var redis = require('redis');
-var parse = require('parse-redis-url');
-redis = parse(redis);
 
 // Current working directory
 var cwd = process.cwd();
