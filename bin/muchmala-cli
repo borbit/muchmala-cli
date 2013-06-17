@@ -59,11 +59,10 @@ program
   .description('remove puzzle')
   .action(remove);
 
-var redisClient = redis.createClient(program.redis || 'redis://localhost:6379');
-
 function create(imagePath) {
   imagePath = path.resolve(cwd, imagePath);
 
+  var redisClient = redis.createClient(program.redis);
   var builder = new cmn.Builder(redisClient);
   var stat = fs.statSync(imagePath);
   var images;
@@ -105,7 +104,7 @@ function create(imagePath) {
 }
 
 function covers() {
-  var builder = new cmn.Builder(redisClient);
+  var builder = new cmn.Builder();
 
   builder.buildCovers({
     dirPath    : path.resolve(cwd, program.out || '')  
@@ -117,7 +116,7 @@ function covers() {
 }
 
 function frame() {
-  var builder = new cmn.Builder(redisClient);
+  var builder = new cmn.Builder();
 
   builder.buildFrame({
     dirPath    : path.resolve(cwd, program.out || '')  
@@ -129,6 +128,7 @@ function frame() {
 }
 
 function list() {
+  var redisClient = redis.createClient(program.redis);
   var puzzles = new cmn.db.Puzzles(redisClient);
   
   var op = {};
@@ -141,9 +141,9 @@ function list() {
     _.each(list, function(puzzle, i) {
       var date = new Date(+puzzle.time);
 
-      console.log('%d\t%s\t%dx%d\t%d\t%d\t%s\t%d\t%d', i, puzzle.id, puzzle.lenHor,
+      console.log('%d\t%s\t%dx%d\t%d\t%d\t%s\t%d', i+1, puzzle.id, puzzle.lenHor,
         puzzle.lenVer, puzzle.pieceSize, puzzle.spriteSize,
-        date.toLocaleDateString(), puzzle.public, puzzle.complete);
+        date.toLocaleDateString(), puzzle.complete);
     });
 
     process.exit(1);
@@ -151,6 +151,7 @@ function list() {
 }
 
 function count() {
+  var redisClient = redis.createClient(program.redis);
   var puzzles = new cmn.db.Puzzles(redisClient);
 
   puzzles.getPuzzlesCount(function(err, count) {
@@ -160,8 +161,14 @@ function count() {
   });
 }
 
-function remove() {
-  
+function remove(puzzleId) {
+  var redisClient = redis.createClient(program.redis);
+  var puzzles = new cmn.db.Puzzles(redisClient);
+
+  puzzles.removePuzzle(puzzleId, function(err) {
+    if (err) throw err;
+    process.exit(1);
+  });
 }
 
 program.parse(process.argv);
