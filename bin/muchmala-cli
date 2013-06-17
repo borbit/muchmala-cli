@@ -54,6 +54,11 @@ program
   .description('get puzzles count')
   .action(count);
 
+program
+  .command('remove')
+  .description('remove puzzle')
+  .action(remove);
+
 var redisClient = redis.createClient(program.redis || 'redis://localhost:6379');
 
 function create(imagePath) {
@@ -153,6 +158,10 @@ function count() {
     console.log(count);
     process.exit(1);
   });
+}
+
+function remove() {
+  
 }
 
 program.parse(process.argv);

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+for F in ./*/*.png
+do
+  cwebp $F -lossless -progress -o `dirname ${F%.png}`/`basename ${F%.png}`.webp
+done
