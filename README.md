@@ -1,2 +1,2 @@
-Mcuhamal CLI
+Muchmala CLI
 ------------
